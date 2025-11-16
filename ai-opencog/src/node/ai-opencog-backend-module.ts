@@ -61,6 +61,18 @@ import { AdvancedLearningServiceImpl } from './advanced-learning-service';
 import { DistributedReasoningServiceImpl } from './distributed-reasoning-service-impl';
 // Phase 5 production optimization
 import { ProductionOptimizationServiceImpl } from './production-optimization-service-impl';
+// Phase 7 analytics services
+import { CodeAnalyticsServiceImpl } from './analytics/code-analytics-service-impl';
+import { CognitiveAnalyticsServiceImpl } from './analytics/cognitive-analytics-service-impl';
+import { InsightGenerationServiceImpl } from './analytics/insight-generation-service-impl';
+import { 
+    CodeAnalyticsService, 
+    CodeAnalyticsServicePath,
+    CognitiveAnalyticsService,
+    CognitiveAnalyticsServicePath,
+    InsightGenerationService,
+    InsightGenerationServicePath
+} from '../common/analytics';
 
 export default new ContainerModule(bind => {
     bind(OpenCogServiceSymbol).to(AtomSpaceService).inSingletonScope();
@@ -93,6 +105,11 @@ export default new ContainerModule(bind => {
     
     // Phase 5: Bind production optimization service
     bind(ProductionOptimizationServiceSymbol).to(ProductionOptimizationServiceImpl).inSingletonScope();
+    
+    // Phase 7: Bind analytics services
+    bind(CodeAnalyticsService).to(CodeAnalyticsServiceImpl).inSingletonScope();
+    bind(CognitiveAnalyticsService).to(CognitiveAnalyticsServiceImpl).inSingletonScope();
+    bind(InsightGenerationService).to(InsightGenerationServiceImpl).inSingletonScope();
     
     bind(ConnectionHandler).toDynamicValue(ctx =>
         new RpcConnectionHandler(OPENCOG_SERVICE_PATH, () =>
@@ -162,6 +179,25 @@ export default new ContainerModule(bind => {
     bind(ConnectionHandler).toDynamicValue(ctx =>
         new RpcConnectionHandler(PRODUCTION_OPTIMIZATION_SERVICE_PATH, () =>
             ctx.container.get(ProductionOptimizationServiceSymbol)
+        )
+    ).inSingletonScope();
+    
+    // Phase 7: Bind analytics service connection handlers
+    bind(ConnectionHandler).toDynamicValue(ctx =>
+        new RpcConnectionHandler(CodeAnalyticsServicePath, () =>
+            ctx.container.get(CodeAnalyticsService)
+        )
+    ).inSingletonScope();
+    
+    bind(ConnectionHandler).toDynamicValue(ctx =>
+        new RpcConnectionHandler(CognitiveAnalyticsServicePath, () =>
+            ctx.container.get(CognitiveAnalyticsService)
+        )
+    ).inSingletonScope();
+    
+    bind(ConnectionHandler).toDynamicValue(ctx =>
+        new RpcConnectionHandler(InsightGenerationServicePath, () =>
+            ctx.container.get(InsightGenerationService)
         )
     ).inSingletonScope();
 });
